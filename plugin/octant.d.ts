@@ -107,21 +107,29 @@ export interface Ref {
 }
 
 /**
+ * DashboardClientMetadata is propagated to the plugin's store to allow coordination between frontend and backend
+ * requests.
+ */
+type DashboardClientMetadata = {[key: string]: string}
+
+/**
  * DashboardClient provides API operations to Octant plugins.
  */
 export interface DashboardClient {
   /**
    * Get attempts to fetch a resource using the key provided
    * @param key - the key of the object to be fetched
+   * @param metadata from the dashboard, provided to the plugin
    * @throws will throw an exception if there is an error with the request
    */
-  Get(key: Key): any;
+  Get(key: Key, metadata?: DashboardClientMetadata): any;
   /**
    * List attempts to fetch a list of all the resources matching the provided key
    * @param key - the key of the objects to list
+   * @param metadata from the dashboard, provided to the plugin
    * @throws will throw an exception if there is an error during the request
    */
-  List(key: Key): any[];
+  List(key: Key, metadata?: DashboardClientMetadata): any[];
   /**
    * Update will apply the YAML in to the provided namespace. Use this to Create and Update resources in the cluster.
    * When there are multiple resources in the YAML, they will be applied in order.
@@ -129,15 +137,17 @@ export interface DashboardClient {
    * @param namespace - namespace for the resource, if empty, current Octant namespace will be used, if
    * namespace is set in the YAMl that will always take precedence over this param
    * @param yaml - YAML to apply, can contain multiple resources
+   * @param metadata from the dashboard, provided to the plugin
    * @throws will throw an exception if there is an error during the request
    */
-  Update(namespace: string, yaml: string): string;
+  Update(namespace: string, yaml: string, metadata?: DashboardClientMetadata): string;
   /**
    * Delete deletes a an object identified by the key.
    * @param key The key of the object to be deleted
+   * @param metadata from the dashboard, provided to the plugin
    * @throws Will throw an exception if the key is invalid or the delete fails.
    */
-  Delete(key: Key): never;
+  Delete(key: Key, metadata?: DashboardClientMetadata): never;
   /**
    * RefPath generates an Octant reference path using the details of the Ref provided.
    * @param object - object to renerate the reference path for. Reference paths can be used with LinkFactory to
@@ -149,11 +159,13 @@ export interface DashboardClient {
    * @param clientID the clientID the event should be sent to
    * @param eventType the eventType, e.g. event.octant.dev/alert, see pkg/event/event.go for a full list
    * @param payload the payload for the event.
+   * @param metadata from the dashboard, provided to the plugin
    */
   SendEvent(
     clientID: string,
     eventType: string,
-    payload: { [key: string]: string | number }
+    payload: { [key: string]: string | number },
+    metadata?: DashboardClientMetadata
   ): void;
 }
 
